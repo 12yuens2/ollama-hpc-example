@@ -4,7 +4,9 @@
 #SBATCH --nodes 1
 #SBATCH --gpus 1
 #SBATCH --mem 32768
-#SBATCH --job-name ollama-setup
+#SBATCH --job-name ollama-run
+#SBATCH --output=/bask/projects/path/to/logs/ollama-run.out
+#SBATCH --error=/bask/projects/path/to/logs/ollama-run.err 
 
 # Execute using:
 # sbatch ./batch-ollama-run.sh
@@ -36,6 +38,10 @@ export OLLAMA_MODELS=${PWD}/ollama_install/models
 # Want to avoid port conflicts
 export OLLAMA_GAME_PORT=$((21000 + ($RANDOM % 500)))
 export OLLAMA_HOST=127.0.0.1:${OLLAMA_GAME_PORT}
+
+# Slurm incorrectly sets ROCR_VISIBLE_DEVICES=0, which causes Ollama to load models into CPU for inference
+# See https://github.com/ollama/ollama/issues/11220
+unset ROCR_VISIBLE_DEVICES
 
 echo "Ollama host is ${OLLAMA_HOST}"
 
